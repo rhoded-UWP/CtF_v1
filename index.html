@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  FLAG 1 (HTML COMMENT): flag{c0mm3nt_cr4wl3r}
+  Nice work viewing the source. This is the easiest one.
+  ============================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="CS Cybersecurity Workshop">
+<!-- FLAG 4 (META TAG): hidden in plain sight inside the head -->
+<meta name="x-secret-flag" content="flag{m3t4_h34d_hunt3r}">
+<title>CS Cybersecurity Workshop - Capture the Flag Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ===== DECOYS below: NOT real flags, ignore ===== */
+  /* flag{smoke_screen} nothing here */
+  /* flag{dead_end} turn back */
+  /* flag{placebo} has no effect on your score */
+  /* flag{imposter} among the comments, but fake */
+  /* flag{mirage} looks like water, isnt */
+  /* flag{false_positive} ignore */
+  /* flag{bamboozled} not a real capture */
+  /* flag{noise_maker} just here to clutter search */
+  /* flag{honey_pot} dont fall for it */
+  /* flag{scarecrow} purely decorative */
+  /* flag{wild_goose} chase elsewhere */
+  /* flag{snake_oil} sells nothing */
+  /* flag{paper_tiger} harmless decoy */
+  /* flag{empty_box} contains nothing */
+
+  /* ============================================================
+     FLAG 5 (CSS COMMENT): flag{c4sc4d1ng_styl3_sl3uth}
+     Reading stylesheets is a real recon skill. Well done.
+     ============================================================ */
+  :root {
+    --bg: #060a08;
+    --bg-2: #0a120e;
+    --panel: #0d1812;
+    --green: #00ff9c;
+    --green-dim: #16a673;
+    --amber: #ffb000;
+    --red: #ff3b5c;
+    --text: #c8f5e0;
+    --text-dim: #5f8a76;
+    --grid: rgba(0, 255, 156, 0.04);
+    --border: rgba(0, 255, 156, 0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(0,255,156,0.06), transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(255,176,0,0.04), transparent 50%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* scanline grid overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ---------- HEADER ---------- */
+  header {
+    text-align: center;
+    margin-bottom: 36px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.35em;
+    color: var(--green);
+    border: 1px solid var(--border);
+    padding: 5px 14px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    background: rgba(0,255,156,0.04);
+  }
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: clamp(1.6rem, 5vw, 2.9rem);
+    line-height: 1.1;
+    color: var(--text);
+    text-shadow: 0 0 24px rgba(0,255,156,0.25);
+  }
+  h1 .accent { color: var(--green); }
+  .subtitle {
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    margin-top: 14px;
+    letter-spacing: 0.05em;
+  }
+  .cursor { animation: blink 1.1s steps(1) infinite; color: var(--green); }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- CONTROL BAR ---------- */
+  .control-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(0,255,156,0.03);
+  }
+  .timer-block { display: flex; align-items: center; gap: 16px; }
+  .timer-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  #timer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 18px rgba(0,255,156,0.35);
+    min-width: 150px;
+  }
+  #timer.idle { color: var(--text-dim); text-shadow: none; }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--green);
+    background: rgba(0,255,156,0.08);
+    color: var(--green);
+    padding: 13px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+  .btn:hover { background: var(--green); color: var(--bg); box-shadow: 0 0 24px rgba(0,255,156,0.4); }
+  .btn:active { transform: translateY(1px); }
+  .btn.reset { border-color: var(--text-dim); color: var(--text-dim); background: transparent; }
+  .btn.reset:hover { border-color: var(--red); color: var(--red); background: rgba(255,59,92,0.08); box-shadow: none; }
+
+  .progress-wrap { margin-bottom: 36px; }
+  .progress-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .progress-text .count { color: var(--green); font-weight: 700; }
+  .bar {
+    height: 8px;
+    background: rgba(0,255,156,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  #bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--green-dim), var(--green));
+    transition: width 0.4s ease;
+    box-shadow: 0 0 12px rgba(0,255,156,0.5);
+  }
+
+  /* ---------- INTRO / CONTENT ---------- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 26px 28px;
+    margin-bottom: 24px;
+  }
+  .panel h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--green);
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .panel p { color: var(--text); margin-bottom: 12px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .hint { color: var(--text-dim); font-size: 0.9rem; }
+  code.inline {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(0,255,156,0.1);
+    color: var(--green);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+
+  /* ---------- CHECKLIST ---------- */
+  .checklist { list-style: none; }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: var(--bg-2);
+    transition: all 0.25s ease;
+  }
+  .check-item.found {
+    border-color: var(--green);
+    background: rgba(0,255,156,0.06);
+    box-shadow: 0 0 18px rgba(0,255,156,0.12);
+  }
+  .check-box {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--text-dim);
+    border: 1px solid var(--text-dim);
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+  }
+  .check-item.found .check-box { color: var(--bg); background: var(--green); border-color: var(--green); }
+  .check-meta { flex: 1; }
+  .check-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--text);
+  }
+  .check-item.found .check-title { color: var(--green); }
+  .check-hint {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.45s ease, opacity 0.45s ease, margin-top 0.45s ease;
+  }
+  .check-hint.revealed {
+    max-height: 120px;
+    opacity: 1;
+    margin-top: 8px;
+    animation: hintGlow 0.6s ease;
+  }
+  .check-hint .hint-inner {
+    display: inline-block;
+    border-left: 2px solid var(--amber);
+    padding-left: 10px;
+    animation: hintSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes hintSlide {
+    from { transform: translateX(-12px); opacity: 0; filter: blur(3px); }
+    to   { transform: translateX(0); opacity: 1; filter: blur(0); }
+  }
+  @keyframes hintGlow {
+    0%   { background: rgba(255,176,0,0.12); }
+    100% { background: transparent; }
+  }
+  .hint-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    background: rgba(255,176,0,0.08);
+    border: 1px solid rgba(255,176,0,0.35);
+    padding: 4px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.18s ease;
+  }
+  .hint-btn:hover { background: var(--amber); color: var(--bg); box-shadow: 0 0 14px rgba(255,176,0,0.4); }
+  .hint-btn:disabled { opacity: 0.4; cursor: default; }
+  .check-item.found .hint-btn { display: none; }
+
+  /* floating "+points" indicator */
+  .points-pop {
+    position: fixed;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--green);
+    text-shadow: 0 0 16px rgba(0,255,156,0.6);
+    pointer-events: none;
+    z-index: 999;
+    animation: pointsFloat 1.1s ease-out forwards;
+  }
+  @keyframes pointsFloat {
+    0%   { transform: translateY(0) scale(0.7); opacity: 0; }
+    20%  { transform: translateY(-10px) scale(1.15); opacity: 1; }
+    100% { transform: translateY(-70px) scale(1); opacity: 0; }
+  }
+  .points-pop.penalty {
+    color: var(--red);
+    text-shadow: 0 0 16px rgba(255,59,92,0.6);
+    animation: penaltyFloat 1.1s ease-out forwards;
+  }
+  @keyframes penaltyFloat {
+    0%   { transform: translateY(0) scale(0.7); opacity: 0; }
+    20%  { transform: translateY(8px) scale(1.15); opacity: 1; }
+    100% { transform: translateY(60px) scale(1); opacity: 0; }
+  }
+  #score { transition: color 0.2s ease; }
+  #score.bump { animation: scoreBump 0.4s ease; }
+  @keyframes scoreBump {
+    0%, 100% { transform: scale(1); }
+    40% { transform: scale(1.35); color: var(--amber); }
+  }
+  .check-found-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--green);
+    margin-top: 4px;
+    display: none;
+  }
+  .check-item.found .check-found-tag { display: block; }
+
+  /* ---------- SUBMIT ---------- */
+  .submit-row { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+  #flag-input {
+    flex: 1;
+    min-width: 220px;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--green);
+    padding: 13px 16px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+  #flag-input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 14px rgba(0,255,156,0.2); }
+  #flag-input::placeholder { color: var(--text-dim); }
+  #feedback {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    margin-top: 12px;
+    min-height: 20px;
+  }
+  #feedback.ok { color: var(--green); }
+  #feedback.dup { color: var(--amber); }
+  #feedback.bad { color: var(--red); }
+
+  /* FLAG 6 (BROKEN IMAGE): student must inspect/load the alt + src to find it */
+  .ghost-img {
+    display: block;
+    margin: 0 auto;
+    border: 1px dashed var(--text-dim);
+    padding: 20px;
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    max-width: 320px;
+  }
+
+  /* FLAG 7 (HIDDEN ELEMENT): in the DOM, never rendered */
+  .nope { display: none; }
+
+  /* FLAG 8 (SAME-COLOR TEXT): blends into background until selected/inspected */
+  .invisible-text { color: var(--bg); user-select: all; font-family: 'JetBrains Mono', monospace; }
+
+  /* FLAGS 11 & 12 (SAME-COLOR TEXT, matched to PANEL bg): harder, hides inside panel prose */
+  .invisible-panel { color: var(--panel); user-select: all; }
+
+  /* FLAG 10 (CSS ::after content) */
+  .css-locked { position: relative; }
+  .css-locked::after {
+    content: "flag{ps3ud0_3l3m3nt_pr0}";
+    display: none;  /* it's in the stylesheet but not rendered */
+  }
+
+  .win-banner {
+    display: none;
+    text-align: center;
+    padding: 30px;
+    border: 1px solid var(--green);
+    border-radius: 12px;
+    background: rgba(0,255,156,0.08);
+    margin-bottom: 24px;
+    box-shadow: 0 0 40px rgba(0,255,156,0.25);
+  }
+  .win-banner h2 {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--green);
+    font-size: 1.6rem;
+    text-shadow: 0 0 20px rgba(0,255,156,0.4);
+  }
+  .win-banner p { color: var(--text); margin-top: 10px; font-family: 'JetBrains Mono', monospace; }
+
+  footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    margin-top: 40px;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body
+  data-secret="flag{d4t4_4ttr1but3_d3t3ct1v3}"  
+><!-- FLAG 3 (HTML DATA ATTRIBUTE on body): inspect the <body> tag itself -->
+
+<!-- this_is_NOT_a flag{nope} sorry! -->
+<!-- reject flag{bad_apple} not a winner -->
+  <div class="wrap">
+  <header>
+    <span class="badge">// access_granted</span>
+    <h1>CS Cybersecurity Workshop<br><span class="accent">Capture the Flag</span> Challenge</h1>
+    <p class="subtitle">> 12 flags hidden in this page. Find them all.<span class="cursor">_</span></p>
+  </header>
+
+  <!-- decoy flag{not_it} keep_looking -->
+<!-- flag{phony_42} fabricated, do not submit -->
+  <div class="control-bar">
+    <div class="timer-block">
+      <span class="timer-label">Elapsed</span>
+      <span id="timer" class="idle">00:00.0</span>
+    </div>
+    <div style="display:flex; gap:12px;">
+      <button class="btn" id="start-btn">Start Challenge</button>
+      <button class="btn reset" id="reset-btn">Reset</button>
+    </div>
+  </div>
+
+  <!-- flag{fake_0001} <- this is a trap, ignore me -->
+<!-- flag{counterfeit} this is bait -->
+  <div class="progress-wrap">
+    <div class="progress-text">
+      <span>FLAGS CAPTURED</span>
+      <span>SCORE: <span class="count" id="score">0</span> &nbsp;|&nbsp; <span class="count" id="found-count">0</span> / 12</span>
+    </div>
+    <div class="bar"><div id="bar-fill"></div></div>
+  </div>
+
+  <!-- haha flag{gotcha} this one is bogus -->
+<!-- flag{0bvi0us_tr4p} too easy to be real, because it isnt -->
+  <div class="win-banner" id="win-banner">
+    <h2>>> ALL FLAGS CAPTURED <<</h2>
+    <p id="win-time">Final time: 00:00.0</p>
+  </div>
+
+  <!-- flag{red_herring} nice try, not real -->
+<!-- flag{misdirection} keep hunting -->
+  <div class="panel">
+    <h2>Mission Briefing</h2>
+    <p>Your job: use your browser's developer tools to find all <strong>12 hidden flags</strong>. Every flag looks like <code class="inline">flag{...}</code>.</p>
+    <p class="hint">Open DevTools with <code class="inline">F12</code> or right-click → Inspect. You'll need the Elements, Console, Network, and Application tabs. When you find a flag, paste it in the box below to log it.<span class="invisible-panel"> flag{br13f1ng_bl3nd3r} </span> Press <strong>Start Challenge</strong> to begin the timer.</p>
+  </div>
+
+  <!-- NOT_THE_FLAG flag{wrong} move along -->
+  <div class="panel">
+    <h2>Submit a Flag</h2>
+    <div class="submit-row">
+      <input type="text" id="flag-input" placeholder="flag{...}" autocomplete="off" spellcheck="false">
+      <button class="btn" id="submit-btn">Submit</button>
+    </div>
+    <div id="feedback"></div>
+  </div>
+
+  <!-- flag{distraction_99} this does nothing -->
+  <div class="panel">
+    <h2>Flag Checklist</h2>
+    <ul class="checklist" id="checklist"></ul>
+  </div>
+
+  <!-- FLAG 6: broken image. Students inspect to find the src path AND the alt text -->
+  <!-- psst flag{this_is_fake} the real ones are hidden better -->
+  <div class="panel">
+    <h2>Asset Loader</h2>
+    <p class="hint">An image failed to load below. Inspect it to find out why.</p>
+    <img class="ghost-img" src="/assets/flag{br0k3n_l1nk_l00t}.png" alt="flag in the src path - check the broken image source">
+  </div>
+
+  <!-- FLAG 7: hidden element, present in DOM but display:none -->
+  <div class="nope" data-note="not rendered, but i'm in the DOM">flag{h1dd3n_1n_pl41n_d0m}</div>
+
+  <!-- FLAG 8: same-color text, invisible until you select-all or inspect -->
+  <!-- flag{decoy_alpha} (a decoy, not a real flag) -->
+  <div class="panel">
+    <h2>Decryption Notes</h2>
+    <p>Sometimes the most obvious place is the one you can't see. Try selecting everything on this line: <span class="invisible-text">flag{wh1t3_0n_bl4ck_r3v34l}</span> ...anything there?<span class="invisible-panel"> flag{p4n3l_phant0m} </span></p>
+  </div>
+
+  <div class="css-locked"></div>
+
+  <!-- flag{nope_again} you wont score points for this -->
+  <footer>
+    > CS Cybersecurity Workshop // stay curious, stay ethical
+  </footer>
+</div>
+
+<script>
+// ===== DECOYS: NOT real flags =====
+// flag{tumbleweed} drifts past, ignore
+// flag{cardboard_cutout} not the real deal
+// flag{rubber_chicken} a joke, not a flag
+// flag{nothingburger} no points here
+// flag{detour_sign} wrong way
+// flag{static_noise} disregard
+// flag{fools_gold} glitters, worthless
+// flag{trap_card} you activated my trap (its fake)
+// flag{quicksand} dont sink time here
+// flag{false_lead} the trail goes cold
+// flag{busy_signal} line is dead
+// flag{copy_paste_bait} submitting this earns 0
+// flag{lorem_ipsum} placeholder, not real
+// flag{this_one_too} still fake, sorry
+
+/* ============================================================
+   FLAG 9 (CONSOLE): printed to the console on load.
+   Students must open the Console tab to see it.
+   ============================================================ */
+console.log("%c flag{c0ns0l3_c0mm4nd3r} ", "background:#00ff9c; color:#060a08; font-size:16px; padding:4px 8px; font-weight:bold;");
+console.log("%cTip: there are more flags hiding in this page. Keep digging.", "color:#5f8a76;");
+
+/* FLAG 2 lives in this JS source (Sources tab / view-source).
+   const HINT below holds it. */
+const HINT = "flag{j4v4scr1pt_sn00p3r}"; // FLAG 2 (JS SOURCE)
+
+// ---- The 12 flags (values stored as SHA-256 hashes, not plaintext) ----
+const FLAGS = [
+  { id: 1,  hash: "6903e97a759d5e53a30c56f0bc2641007f31e3223c1a5311bfde94ed19b8622d", title: "Comment",             hint: "View the page source. Look near the very top." },
+  { id: 2,  hash: "d6619c68aabfe7b65eb7644132ea687db760270c86652a774bffbb15b643bbe6", title: "JavaScript Source",   hint: "Open the Sources tab (or view-source). Read the script." },
+  { id: 3,  hash: "d085e4137ddb33c5127f5c8b20e35ffa66b678bfb554270f4ab9ed4594406ded", title: "Data Attribute",     hint: "Inspect the &lt;body&gt; tag. Read all its attributes." },
+  { id: 4,  hash: "ea9ec4f6cfb0d84b5c61c271fb3bed0856ad2e7d09fb972294069c8462957488", title: "Meta Tag",            hint: "Look inside the &lt;head&gt; tag for an unusual tag." },
+  { id: 5,  hash: "63de8782d1b7b3e9bdf0407d48967f2bb56b5aa150dde6f910d42828bffd758d", title: "CSS Comment",         hint: "Find the &lt;style&gt; tag. Comments hide things." },
+  { id: 6,  hash: "25beacde4aa9b615d786fbdc50c9363db77d4a3b91440b5c40477f266f2bb4ef", title: "Broken Image",        hint: "Inspect the broken image. Check its src path." },
+  { id: 7,  hash: "9c4fec60e9283c9303241f2c7c082a7665c1406dae26ec70c3e1a09f2afd835d", title: "Hidden Element",      hint: "Some elements are display:none. Search the DOM." },
+  { id: 8,  hash: "9ad6160778ffa57ca3b785d9ab410eb2e70d18e80fc5ae69aca051a2b00ea020", title: "Hidden Text",         hint: "Select all text on the page, or inspect the Decryption Notes." },
+  { id: 9,  hash: "c4f9cef73b6327e7c3ba0465653c453194f7984b4945dc81f15543c280390855", title: "Console Message",     hint: "Open the Console tab. Something was logged on load." },
+  { id: 10, hash: "98c31e7b1a132c30f506fd9ecc82b94e948283353f110e91567c55077bc44e12", title: "CSS ::after Content", hint: "A pseudo-element's content property holds a flag in the CSS." },
+  { id: 11, hash: "c8fbd2de445a4f307c1ef01c96d76ea6698c87bf046b1cacd7fd33e43562f0ea", title: "Hidden Text",         hint: "Same-color text, but matched to a panel background. Select-all the Mission Briefing." },
+  { id: 12, hash: "ace5acd2c912bd3a354a7afa28de43cf497a335d09f4958d604f9787e3dad8d5", title: "Panel Phantom",       hint: "Another panel-colored flag hides in the Decryption Notes prose." },
+];
+
+const found = new Set();
+let score = 0;
+let startTime = null, timerInterval = null, running = false;
+
+const timerEl   = document.getElementById('timer');
+const startBtn  = document.getElementById('start-btn');
+const resetBtn  = document.getElementById('reset-btn');
+const submitBtn = document.getElementById('submit-btn');
+const input     = document.getElementById('flag-input');
+const feedback  = document.getElementById('feedback');
+const countEl   = document.getElementById('found-count');
+const scoreEl   = document.getElementById('score');
+const barFill   = document.getElementById('bar-fill');
+const checklist = document.getElementById('checklist');
+const winBanner = document.getElementById('win-banner');
+const winTime   = document.getElementById('win-time');
+
+// build checklist
+FLAGS.forEach(f => {
+  const li = document.createElement('li');
+  li.className = 'check-item';
+  li.id = 'check-' + f.id;
+  li.innerHTML = `
+    <div class="check-box">${f.id}</div>
+    <div class="check-meta">
+      <div class="check-title">${f.title}</div>
+      <button class="hint-btn" data-hint="${f.id}">? Hint</button>
+      <div class="check-hint" id="hint-${f.id}"><span class="hint-inner">${f.hint}</span></div>
+      <div class="check-found-tag" id="tag-${f.id}">✓ captured</div>
+    </div>`;
+  checklist.appendChild(li);
+});
+
+// hint button handlers
+document.querySelectorAll('.hint-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const hintEl = document.getElementById('hint-' + btn.dataset.hint);
+    hintEl.classList.add('revealed');
+    btn.disabled = true;
+    btn.textContent = '? Hint shown (-5)';
+    // hint penalty: -5 points (only while running, never below 0)
+    if (running) {
+      score = Math.max(0, score - 5);
+      scoreEl.textContent = score;
+      floatPenalty(5);
+      bumpScore();
+      feedback.textContent = '> HINT USED: -5 pts';
+      feedback.className = 'dup';
+    }
+    // re-trigger the inner slide animation
+    const inner = hintEl.querySelector('.hint-inner');
+    inner.style.animation = 'none';
+    void inner.offsetWidth;
+    inner.style.animation = '';
+  });
+});
+
+// SHA-256 of a string -> hex, via the browser's Web Crypto API
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function fmt(ms) {
+  const total = ms / 1000;
+  const m = Math.floor(total / 60);
+  const s = Math.floor(total % 60);
+  const t = Math.floor((ms % 1000) / 100);
+  return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + '.' + t;
+}
+
+function tick() {
+  if (!startTime) return;
+  timerEl.textContent = fmt(Date.now() - startTime);
+}
+
+// 35 points minus 5 per full minute elapsed, minimum 5
+function pointsForNow() {
+  const minutes = Math.floor((Date.now() - startTime) / 60000);
+  return Math.max(5, 35 - minutes * 5);
+}
+
+function floatPoints(pts) {
+  const pop = document.createElement('div');
+  pop.className = 'points-pop';
+  pop.textContent = '+' + pts;
+  const rect = scoreEl.getBoundingClientRect();
+  pop.style.left = rect.left + 'px';
+  pop.style.top  = rect.top + 'px';
+  document.body.appendChild(pop);
+  setTimeout(() => pop.remove(), 1200);
+}
+
+function floatPenalty(pts) {
+  const pop = document.createElement('div');
+  pop.className = 'points-pop penalty';
+  pop.textContent = '-' + pts;
+  const rect = scoreEl.getBoundingClientRect();
+  pop.style.left = rect.left + 'px';
+  pop.style.top  = rect.top + 'px';
+  document.body.appendChild(pop);
+  setTimeout(() => pop.remove(), 1200);
+}
+
+function bumpScore() {
+  scoreEl.classList.remove('bump');
+  void scoreEl.offsetWidth;
+  scoreEl.classList.add('bump');
+}
+
+startBtn.addEventListener('click', () => {
+  if (running) return;
+  running = true;
+  startTime = Date.now();
+  timerEl.classList.remove('idle');
+  timerInterval = setInterval(tick, 100);
+  startBtn.textContent = 'Running...';
+  startBtn.disabled = true;
+  startBtn.style.opacity = '0.5';
+  input.focus();
+});
+
+resetBtn.addEventListener('click', () => {
+  clearInterval(timerInterval);
+  running = false;
+  startTime = null;
+  found.clear();
+  score = 0;
+  scoreEl.textContent = '0';
+  timerEl.textContent = '00:00.0';
+  timerEl.classList.add('idle');
+  startBtn.textContent = 'Start Challenge';
+  startBtn.disabled = false;
+  startBtn.style.opacity = '1';
+  countEl.textContent = '0';
+  barFill.style.width = '0%';
+  winBanner.style.display = 'none';
+  feedback.textContent = '';
+  feedback.className = '';
+  FLAGS.forEach(f => {
+    document.getElementById('check-' + f.id).classList.remove('found');
+    document.getElementById('tag-' + f.id).textContent = '✓ captured';
+  });
+  // reset hints
+  document.querySelectorAll('.check-hint').forEach(h => h.classList.remove('revealed'));
+  document.querySelectorAll('.hint-btn').forEach(b => { b.disabled = false; b.textContent = '? Hint'; });
+});
+
+async function submitFlag() {
+  const val = input.value.trim().toLowerCase();
+  if (!val) return;
+  if (!running) {
+    feedback.textContent = '> Press "Start Challenge" first to begin the timer.';
+    feedback.className = 'dup';
+    return;
+  }
+  const digest = await sha256(val);
+  const match = FLAGS.find(f => f.hash === digest);
+  if (!match) {
+    feedback.textContent = '> ACCESS DENIED: not a valid flag. Keep hunting.';
+    feedback.className = 'bad';
+  } else if (found.has(match.id)) {
+    feedback.textContent = '> Already captured: ' + match.title;
+    feedback.className = 'dup';
+  } else {
+    found.add(match.id);
+    const pts = pointsForNow();
+    score += pts;
+    scoreEl.textContent = score;
+    floatPoints(pts);
+    bumpScore();
+    document.getElementById('check-' + match.id).classList.add('found');
+    document.getElementById('tag-' + match.id).textContent = '✓ captured: ' + val;
+    countEl.textContent = found.size;
+    barFill.style.width = (found.size / FLAGS.length * 100) + '%';
+    feedback.textContent = '> CAPTURED [' + found.size + '/' + FLAGS.length + ']: ' + match.title + '  +' + pts + ' pts ✓';
+    feedback.className = 'ok';
+    if (found.size === FLAGS.length) {
+      clearInterval(timerInterval);
+      running = false;
+      const finalT = fmt(Date.now() - startTime);
+      winTime.textContent = 'Final time: ' + finalT + '  |  Score: ' + score;
+      winBanner.style.display = 'block';
+      winBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      console.log("%c MISSION COMPLETE — all " + FLAGS.length + " flags captured in " + finalT, "color:#00ff9c; font-weight:bold;");
+    }
+  }
+  input.value = '';
+  input.focus();
+}
+
+submitBtn.addEventListener('click', submitFlag);
+input.addEventListener('keydown', e => { if (e.key === 'Enter') submitFlag(); });
+</script>
+</body>
+</html>
